@@ -1,16 +1,19 @@
-Summary:	hub makes git better with github
+Summary:	Command-line wrapper for git that makes you better at GitHub
 Name:		hub
-Version:	1.12.0
+Version:	2.2.3
 Release:	1
-License:	BSD
+License:	MIT
 Group:		Development/Tools
 Source0:	https://github.com/github/hub/archive/v%{version}/%{name}-%{version}.tar.gz
-# Source0-md5:	87d6ba3ffd513814dedf6a6b6e07e41f
+# Source0-md5:	6675992ddd16d186eac7ba4484d57f5b
 URL:		http://hub.github.com/
+BuildRequires:	golang >= 1.5
+BuildRequires:	bash
 Requires:	git-core >= 1.7.3
-Requires:	ruby >= 1:1.8.6
-BuildArch:	noarch
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
+
+# go stuff
+%define _enable_debug_packages 0
 
 %description
 hub is a command line tool that wraps git in order to extend it with
@@ -22,11 +25,14 @@ shell and get all the usual hub features.
 %prep
 %setup -q
 
+%build
+bash -x ./script/build -o hub
+
 %install
 rm -rf $RPM_BUILD_ROOT
-rake install \
-	prefix=%{_prefix} \
-	DESTDIR=$RPM_BUILD_ROOT
+install -d $RPM_BUILD_ROOT{%{_bindir},%{_mandir}/man1}
+install -p hub $RPM_BUILD_ROOT%{_bindir}
+cp -p man/hub.1 $RPM_BUILD_ROOT%{_mandir}/man1
 
 %clean
 rm -rf $RPM_BUILD_ROOT
